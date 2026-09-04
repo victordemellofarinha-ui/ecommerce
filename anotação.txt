@@ -16,3 +16,8 @@ on delete cascade  = se eu apagar 1 apaga tudo linkado a ele
 --insert into tabela(1, 2, 3)  = insere as informações que você colocar em uma tabela de sua escolha
 --'nome1', 'nome2', 'nome3'
 --Pode colocar quantos da linha 17 você quiser.
+
+
+
+teste.id  = chave estrangeira
+teste_id  = chave primaria

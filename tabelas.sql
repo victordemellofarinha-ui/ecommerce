@@ -108,3 +108,123 @@ from
 produtos p 
 join categorias c on c.id = p.categoria_id
 order by p.preco desc;
+
+
+
+SELECT
+pedidos.id,
+clientes.nome,
+SUM(item.quantidade * item.preco_unitario) as valor_total_pedido
+FROM
+
+pedidos
+
+JOIN 
+clientes on pedidos.clientes_id = clientes.id
+join
+itens_pedidos item on pedidos.id = item.pedido_id
+
+group by pedidos.id, clientes.nome
+order by pedidos.id;
+
+
+
+SELECT
+nome as produtos,
+quantidade_estoque
+from produtos
+where (quantidade_estoque <10)
+order by quantidade_estoque;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+MEDCARE ATIVIDADE
+
+CREATE TABLE pacientes(
+id serial primary key,
+nome VARCHAR(150) not NULL,
+email VARCHAR(150) unique not null,
+cpf varchar(11) unique not null,
+data_nascimento varchar(10) not null,
+data_cadrastro TIMESTAMP default current_timestamp
+
+);
+
+
+
+CREATE TABLE especialidades(
+id serial primary key,
+nome VARCHAR(150) check (nome not like '% %') not NULL
+);
+
+
+
+CREATE TABLE medicos(
+id serial primary key,
+especialidade_id int not null,
+nome VARCHAR(150) not null,
+crm varchar(100) unique not null,
+valor_consulta numeric (10,2) check(valor_consulta > 0),
+
+constraint fk_especialidade_id
+foreign key (especialidade_id)
+REFERENCES especialidades(id)
+on delete cascade
+);
+
+
+
+CREATE TABLE consultas(
+id serial primary key,
+medico_id int not null,
+paciente_id int not null,
+data_hora TIMESTAMP default current_timestamp,
+status varchar(20) default 'Agendada' check (status in ('Agendada', 'Realizada', 'Cancelada')),
+
+constraint medico_id
+FOREIGN key (medico_id)
+REFERENCES medicos(id)
+on delete cascade,
+
+constraint paciente_id
+FOREIGN key (paciente_id)
+references pacientes(id)
+on delete restrict
+);
+
+
+
+CREATE TABLE exames_consulta(
+id serial primary key,
+consulta_id int not null,
+nome_exame varchar(100) not null,
+valor_exame numeric (10,2) not null check(valor_exame >= 0),
+
+constraint consultas_id
+FOREIGN key (consulta_id)
+REFERENCES consultas(id)
+on delete restrict
+);
+
+
+
+
+insert into especialidades(nome) values
+('Cardiologia')
+('Pediatria')
+('Dermatologia')
+
+
+insert into medicos(especialidade_id, nome, crm, valor_consulta) values
+(1,'Ronaldo', 17, 200.00),
+(1,'Juliano', 17, 200.00),
+(1,'Daniel', 9, 200.00)
+
+
+insert into pacientes(nome, email, cpf, data_nascimento) values
+('Tatiane', 'tatiane@teste.com', 11122233344, 20/06/2000),
+('Priscila', 'priscila@teste.com', 22233344455, 21/09/1989),
+('Sandra', 'sandra@teste.com', 33344455566, 22/08/1999)
+
