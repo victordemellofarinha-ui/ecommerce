@@ -212,15 +212,15 @@ on delete restrict
 
 
 insert into especialidades(nome) values
-('Cardiologia')
-('Pediatria')
+('Cardiologia'),
+('Pediatria'),
 ('Dermatologia')
 
 
 insert into medicos(especialidade_id, nome, crm, valor_consulta) values
-(1,'Ronaldo', 17, 200.00),
-(1,'Juliano', 17, 200.00),
-(1,'Daniel', 9, 200.00)
+(1,'Ronaldo', 18, 500.00),
+(2,'Juliano', 17, 700.00),
+(3,'Daniel', 9, 200.00)
 
 
 insert into pacientes(nome, email, cpf, data_nascimento) values
@@ -228,3 +228,101 @@ insert into pacientes(nome, email, cpf, data_nascimento) values
 ('Priscila', 'priscila@teste.com', 22233344455, 21/09/1989),
 ('Sandra', 'sandra@teste.com', 33344455566, 22/08/1999)
 
+
+insert into consultas(medico_id, paciente_id) values
+(7, 1),
+(8, 2),
+(9, 2),
+(9, 3)
+
+
+insert into exames_consulta(consulta_id, nome_exame, valor_exame) values
+(1, 'Hemograma completo', 300.00),
+(2, 'Exame parasitológico de fezes',80.00),
+(3, 'Eletrocardiograma (ECG)',150.00),
+(4, 'Biópsia de pele',400.00)
+
+
+-- q1
+select 
+medicos.nome,
+medicos.crm,
+medicos.valor_consulta,
+especialidades.nome
+from
+medicos
+join
+especialidades
+on 
+especialidades.id = medicos.especialidade_id
+order by medicos.valor_consulta DESC
+
+-- q2
+SELECT
+    consultas.id,
+    consultas.data_hora,
+    medicos.nome AS medico,
+    especialidades.nome AS especialidade,
+    consultas.status
+FROM consultas
+JOIN pacientes
+    ON consultas.paciente_id = pacientes.id
+JOIN medicos
+    ON consultas.medico_id = medicos.id
+JOIN especialidades
+    ON medicos.especialidade_id = especialidades.id
+WHERE pacientes.nome = 'Sandra';
+
+-- q3
+SELECT
+    consultas.id,
+    pacientes.nome AS paciente,
+    medicos.nome AS medico,
+    medicos.valor_consulta + SUM(exames_consulta.valor_exame) AS valor_total
+FROM 
+consultas
+JOIN 
+pacientes
+ON 
+consultas.paciente_id = pacientes.id
+JOIN 
+medicos
+ON 
+consultas.medico_id = medicos.id
+JOIN 
+exames_consulta
+ON 
+consultas.id = exames_consulta.consulta_id
+GROUP BY
+    consultas.id,
+    pacientes.nome,
+    medicos.nome,
+    medicos.valor_consulta
+ORDER BY consultas.id;
+
+-- q4
+SELECT
+    medicos.nome,
+    medicos.valor_consulta
+FROM medicos
+WHERE medicos.valor_consulta > 300
+ORDER BY medicos.valor_consulta DESC;
+
+-- q5
+SELECT
+    especialidades.nome AS especialidade,
+    SUM(medicos.valor_consulta) AS total_faturado
+FROM 
+consultas
+JOIN
+medicos
+ON 
+consultas.medico_id = medicos.id
+JOIN 
+especialidades
+ON 
+medicos.especialidade_id = especialidades.id
+WHERE 
+consultas.status = 'Realizada'
+GROUP BY especialidades.nome
+ORDER BY total_faturado DESC;
